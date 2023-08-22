@@ -171,6 +171,20 @@ export const addPackages = async (
       if (options.link || options.linkDep) {
         ensureSymlinkSync(destYalcCopyDir, destModulesDir, 'junction')
       } else {
+        // changed： copy origin module to .yalc and named by sign
+        const sign = readSignatureFile(destYalcCopyDir)
+        const modulelSignPath = join(
+          workingDir,
+          values.yalcPackagesFolder,
+          sign
+        )
+        if (!fs.existsSync(modulelSignPath)) {
+          const destModulesDir = join(workingDir, 'node_modules', name)
+          await copyDirSafe(destModulesDir, modulelSignPath, true)
+          console.log(
+            `copy origin package ${packageName} from ${destModulesDir} to ${modulelSignPath}`
+          )
+        }
         await copyDirSafe(destYalcCopyDir, destModulesDir, !options.replace)
       }
 

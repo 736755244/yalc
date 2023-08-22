@@ -21,6 +21,11 @@ export interface RemovePackagesOptions {
   workingDir: string
 }
 
+interface RemovePackagesSign {
+  name: string
+  signature?: string
+}
+
 const isYalcFileAddress = (address: string, name: string) => {
   const regExp = new RegExp(
     'file|link:' + values.yalcPackagesFolder + '/' + name
@@ -70,7 +75,7 @@ export const removePackages = async (
   }
 
   let lockfileUpdated = false
-  const removedPackagedFromManifest: string[] = []
+  const removedPackagedFromManifest: RemovePackagesSign[] = []
   packagesToRemove.forEach((name) => {
     const lockedPackage = lockFileConfig.packages[name]
 
@@ -82,7 +87,10 @@ export const removePackages = async (
       depsWithPackage = pkg.devDependencies
     }
     if (depsWithPackage && isYalcFileAddress(depsWithPackage[name], name)) {
-      removedPackagedFromManifest.push(name)
+      removedPackagedFromManifest.push({
+        name: name,
+        signature: lockedPackage.signature,
+      })
       if (lockedPackage && lockedPackage.replaced) {
         depsWithPackage[name] = lockedPackage.replaced
       } else {
@@ -117,8 +125,16 @@ export const removePackages = async (
   )
 
   const yalcFolder = join(workingDir, values.yalcPackagesFolder)
-  removedPackagedFromManifest.forEach((name) => {
+  removedPackagedFromManifest.forEach(({ name, signature }) => {
     fs.removeSync(join(workingDir, 'node_modules', name))
+    // changed： copy origin module to node_modules
+    if (signature) {
+      const nowFolder = join(workingDir, values.yalcPackagesFolder, signature)
+      const originFolder = join(workingDir, 'node_modules', name)
+      if (fs.existsSync(nowFolder) && !fs.existsSync(originFolder)) {
+        fs.renameSync(nowFolder, originFolder)
+      }
+    }
   })
   packagesToRemove.forEach((name) => {
     if (!options.retreat) {
