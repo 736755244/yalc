@@ -1,6 +1,6 @@
 {
-  "name": "yalc",
-  "version": "1.0.0-pre.53",
+  "name": "jyalc",
+  "version": "1.0.2",
   "description": "Work with npm/yarn packages locally like a boss.",
   "homepage": "https://github.com/whitecolor/yalc",
   "repository": {
@@ -18,7 +18,6 @@
   "scripts": {
     "build": "tsc",
     "clean": "ts-clean-built --old && trash  **/*.log",
-    "prepublishOnly": "yarn clean && tsc && yarn test",
     "test": "tsc && mocha test && yarn lint",
     "test-dev": "ts-node-dev -T --respawn node_modules/mocha/bin/mocha test/index.ts",
     "ci": "tsc && yarn test",

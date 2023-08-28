@@ -173,13 +173,13 @@ export const addPackages = async (
       } else {
         // changed： copy origin module to .yalc and named by sign
         const sign = readSignatureFile(destYalcCopyDir)
+        const destModulesDir = join(workingDir, 'node_modules', name)
         const modulelSignPath = join(
           workingDir,
           values.yalcPackagesFolder,
           sign
         )
-        if (!fs.existsSync(modulelSignPath)) {
-          const destModulesDir = join(workingDir, 'node_modules', name)
+        if (fs.existsSync(destModulesDir) && !fs.existsSync(modulelSignPath)) {
           await copyDirSafe(destModulesDir, modulelSignPath, true)
           console.log(
             `copy origin package ${packageName} from ${destModulesDir} to ${modulelSignPath}`
